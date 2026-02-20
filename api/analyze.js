@@ -1,24 +1,33 @@
 export default async function handler(req, res) {
   const KEY = process.env.GEMINI_API_KEY;
-  if (!KEY) return res.status(200).json({ text: "密钥未配置，请检查 Vercel 环境变量。" });
+  if (!KEY) return res.status(200).json({ text: "密钥丢失" });
   if (req.method !== 'POST') return res.status(405).send("Method Not Allowed");
 
   try {
     const { question, hexName, lang } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     
-    // 【核心改动】根据你的截图，使用 Gemini 3 Flash 的专用预览版模型路径
+    // 【请确认这里是你之前测试成功的模型名】
     const modelName = "gemini-3-flash-preview"; 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${KEY}`;
+
+    // 【强化 Prompt】
+    const prompt = `你是一位精通《易经》三十年的国学大师，擅长结合阴阳消长和生活哲学进行指引。
+用户的问题是："${question}"
+占得卦象为："${hexName}"
+
+请用${lang === 'zh' ? '中文' : '英文'}按以下格式进行深度解析：
+1. 【卦象概论】：一句话说明此卦的吉凶趋势。
+2. 【易理指引】：结合卦名（如${hexName}）解释当下的处境和天时地利。
+3. 【具体建议】：针对用户的问题，给出宜做什么、忌做什么的具体行动指南。
+4. 【禅心悟语】：送给用户的一句智慧箴言。
+
+要求：语气沉稳、专业，多用“君子当...”、“宜...”、“不宜...”等语式，避免空泛。`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ 
-          parts: [{ 
-            text: `你是一位精通周易的大师。用户问：${question}，卦象：${hexName}。请用${lang === 'zh' ? '中文' : '英文'}给出简短而深刻的解析。` 
-          }] 
-        }]
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
@@ -26,14 +35,10 @@ export default async function handler(req, res) {
 
     if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
       res.status(200).json({ text: data.candidates[0].content.parts[0].text });
-    } else if (data.error) {
-      // 这里的报错会告诉我们，是不是需要换回 gemini-1.5-flash 或 gemini-2.0-flash-exp
-      res.status(200).json({ text: `Google API 报告 (${data.error.status}): ${data.error.message}。建议检查模型名称是否为 ${modelName}` });
     } else {
-      res.status(200).json({ text: "AI 响应格式异常。建议在 Google AI Studio 确认当前可用模型确切名称。" });
+      res.status(200).json({ text: "AI 大师正在冥想，请稍后再试。" });
     }
-
   } catch (e) {
-    res.status(200).json({ text: "服务器逻辑异常: " + e.message });
+    res.status(200).json({ text: "系统开小差了：" + e.message });
   }
 }
