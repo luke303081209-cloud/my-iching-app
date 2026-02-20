@@ -1,14 +1,14 @@
 export default async function handler(req, res) {
   const KEY = process.env.GEMINI_API_KEY;
   if (!KEY) return res.status(200).json({ text: "密钥未配置，请检查 Vercel 环境变量。" });
-
   if (req.method !== 'POST') return res.status(405).send("Method Not Allowed");
 
   try {
     const { question, hexName, lang } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     
-    // 我们直接用最原始、兼容性最强的模型路径
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${KEY}`;
+    // 【核心改动】根据你的截图，使用 Gemini 3 Flash 的专用预览版模型路径
+    const modelName = "gemini-3-flash-preview"; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${KEY}`;
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -24,14 +24,13 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // 如果 gemini-pro 也报错，我们捕获它并显示出来
-    if (data.candidates && data.candidates[0]) {
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
       res.status(200).json({ text: data.candidates[0].content.parts[0].text });
     } else if (data.error) {
-      // 这里的错误提示可以帮我们精准定位：是 Key 的问题还是 Google 的服务问题
-      res.status(200).json({ text: `Google API 报告错误: ${data.error.message} (${data.error.status})` });
+      // 这里的报错会告诉我们，是不是需要换回 gemini-1.5-flash 或 gemini-2.0-flash-exp
+      res.status(200).json({ text: `Google API 报告 (${data.error.status}): ${data.error.message}。建议检查模型名称是否为 ${modelName}` });
     } else {
-      res.status(200).json({ text: "AI 暂时无法解析此卦，请稍后再试。" });
+      res.status(200).json({ text: "AI 响应格式异常。建议在 Google AI Studio 确认当前可用模型确切名称。" });
     }
 
   } catch (e) {
