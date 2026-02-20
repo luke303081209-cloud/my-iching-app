@@ -1,41 +1,28 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  const KEY = process.env.GEMINI_API_KEY;
+  
+  // 自检：如果没钥匙，直接在网页上告诉你
+  if (!KEY) {
+    return res.status(200).json({ text: "系统检测到：Vercel 后台没有配置 GEMINI_API_KEY 变量，请先去 Settings 检查。" });
   }
 
-  // 增加更健壮的参数获取逻辑
-  let body;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  } catch (e) {
-    return res.status(400).json({ error: 'Invalid JSON' });
-  }
+  if (req.method === 'POST') {
+    try {
+      const { question, hexName } = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const prompt = `用户问：${question}，卦象：${hexName}。请给出简短解析。`;
 
-  const { question, hexName, lang } = body;
-  const API_KEY = process.env.GEMINI_API_KEY;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
 
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'Environment Variable GEMINI_API_KEY is missing' });
-  }
-
-  const prompt = `你是一位精通易经的智者。用户问："${question}"，卦象："${hexName}"。请用${lang === 'zh' ? '中文' : '英文'}解析。`;
-
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    });
-
-    const data = await response.json();
-    // 检查 Gemini 侧是否返回了错误
-    if (data.error) {
-        return res.status(500).json({ error: 'Gemini API Error: ' + data.error.message });
+      const data = await response.json();
+      res.status(200).json({ text: data.candidates[0].content.parts[0].text });
+    } catch (e) {
+      res.status(200).json({ text: "连接 AI 成功但解析出错：" + e.message });
     }
-    
-    const resultText = data.candidates[0].content.parts[0].text;
-    res.status(200).json({ text: resultText });
-  } catch (error) {
-    res.status(500).json({ error: 'Server Error: ' + error.message });
+  } else {
+    res.status(405).send("Method Not Allowed");
   }
 }
