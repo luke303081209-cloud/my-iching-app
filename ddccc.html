@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flux Oracle | 易问 - 古代智慧的数字共鸣</title>
+    <title>Flux Oracle | 易问 - 开启古代智慧</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
@@ -11,19 +11,18 @@
         
         :root {
             --gold: #c5a059;
-            --bg: #0f0f12;
-            --card: #1a1a1f;
+            --bg: #0a0a0c;
         }
 
         body { 
             background-color: var(--bg); 
             color: var(--gold); 
             font-family: 'Noto Serif SC', serif;
-            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0c 100%);
         }
 
-        /* 极简精致的爻线样式 */
-        .line-container { width: 100%; height: 14px; margin: 10px 0; position: relative; }
+        /* 爻线样式 */
+        .line-container { width: 100%; height: 14px; margin: 12px 0; }
         .yang-line { 
             height: 8px; width: 100%; 
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -36,81 +35,68 @@
             background: linear-gradient(90deg, transparent, #555, transparent); 
             border-radius: 4px;
         }
-        .moving-yang { border: 1px solid #fff; } /* 老阳标注 */
-        .moving-yin { border: 1px solid #fff; }  /* 老阴标注 */
 
-        .glass-panel {
-            background: rgba(26, 26, 31, 0.8);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(197, 160, 89, 0.2);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px);
             border-radius: 24px;
         }
 
-        .gold-btn {
-            background: transparent;
+        .gold-button {
             border: 1px solid var(--gold);
-            color: var(--gold);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s ease;
         }
-        .gold-btn:hover {
+        .gold-button:hover {
             background: var(--gold);
             color: #000;
-            box-shadow: 0 0 30px rgba(197, 160, 89, 0.4);
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.5);
         }
         
-        .coin-icon { width: 40px; height: 40px; border: 2px solid var(--gold); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-weight: bold; }
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-12 px-4">
+<body class="min-h-screen flex flex-col items-center py-10 px-4">
 
-    <header class="w-full max-w-lg flex justify-between items-center mb-12 animate__animated animate__fadeInDown">
-        <div>
-            <h1 class="text-3xl font-light tracking-[0.3em] uppercase">易问</h1>
-            <p class="text-[10px] tracking-[0.5em] opacity-50">THE FLUX ORACLE</p>
+    <header class="w-full max-w-lg flex justify-between items-center mb-10">
+        <div class="animate__animated animate__fadeIn">
+            <h1 class="text-3xl font-bold tracking-[0.2em]">易问</h1>
+            <p class="text-[9px] tracking-[0.4em] opacity-40 uppercase">Flux Oracle AI</p>
         </div>
-        <select id="lang-select" onchange="changeLang(this.value)" class="bg-transparent border-none text-gold text-xs outline-none cursor-pointer">
+        <select id="lang-select" onchange="changeLang(this.value)" class="bg-transparent border border-gold/30 text-gold text-xs rounded px-2 py-1 outline-none">
             <option value="zh">简体中文</option>
             <option value="en">English</option>
         </select>
     </header>
 
     <main class="w-full max-w-md">
-        <div class="glass-panel p-8 mb-8 text-center animate__animated animate__fadeIn">
-            <h2 id="ui-title" class="text-lg font-light mb-6 tracking-widest">请静心思考你的问题</h2>
-            <input id="user-question" type="text" class="w-full bg-transparent border-b border-gold/30 py-3 text-center text-white text-lg focus:border-gold outline-none transition-all" placeholder="...">
+        <div class="glass-card p-6 mb-6 animate__animated animate__fadeInUp">
+            <p id="ui-title" class="text-center text-sm mb-4 opacity-70">在此输入你的困惑或祈愿</p>
+            <input id="user-question" type="text" class="w-full bg-transparent border-b border-gold/40 py-2 text-center text-white text-lg focus:border-gold outline-none transition-all" placeholder="...">
         </div>
 
-        <div id="hex-container" class="glass-panel h-80 flex flex-col-reverse justify-center px-12 py-10 mb-8 relative overflow-hidden">
-            <div id="empty-hint" class="absolute inset-0 flex items-center justify-center opacity-20 pointer-events-none text-sm tracking-[1em]">起卦</div>
+        <div id="hex-display" class="glass-card h-80 flex flex-col-reverse justify-center px-12 py-10 mb-6 relative">
+            <div id="empty-hint" class="absolute inset-0 flex items-center justify-center opacity-10 tracking-[1em]">起卦</div>
         </div>
 
-        <div id="control-panel" class="glass-panel p-8">
+        <div id="interaction-panel" class="glass-card p-8 shadow-2xl">
             <div id="toss-ui">
-                <p id="ui-step-hint" class="text-center text-xs opacity-50 mb-8 tracking-widest uppercase">第 1 爻 / 第 6 步</p>
+                <p id="ui-step-hint" class="text-center text-[10px] opacity-40 mb-6 tracking-widest uppercase">第 1 爻 / 共 6 爻</p>
                 <div class="grid grid-cols-2 gap-4">
-                    <button onclick="addLine(3)" class="gold-btn p-4 rounded-xl flex flex-col items-center">
-                        <span class="coin-icon">正</span>
-                        <span class="text-xs" data-i18n="btn-3">3个正面</span>
-                    </button>
-                    <button onclick="addLine(1)" class="gold-btn p-4 rounded-xl flex flex-col items-center">
-                        <span class="coin-icon">反</span>
-                        <span class="text-xs" data-i18n="btn-1">1正2反</span>
-                    </button>
-                    <button onclick="addLine(2)" class="gold-btn p-4 rounded-xl flex flex-col items-center">
-                        <span class="coin-icon">正</span>
-                        <span class="text-xs" data-i18n="btn-2">2正1反</span>
-                    </button>
-                    <button onclick="addLine(0)" class="gold-btn p-4 rounded-xl flex flex-col items-center">
-                        <span class="coin-icon">反</span>
-                        <span class="text-xs" data-i18n="btn-0">3个反面</span>
-                    </button>
+                    <button onclick="addLine(3)" class="gold-button p-4 rounded-xl text-xs">3个正面 (老阳)</button>
+                    <button onclick="addLine(1)" class="gold-button p-4 rounded-xl text-xs">1正2反 (少阳)</button>
+                    <button onclick="addLine(2)" class="gold-button p-4 rounded-xl text-xs">2正1反 (少阴)</button>
+                    <button onclick="addLine(0)" class="gold-button p-4 rounded-xl text-xs">3个反面 (老阴)</button>
                 </div>
             </div>
 
             <div id="result-ui" class="hidden text-center animate__animated animate__fadeIn">
-                <p class="text-xs opacity-50 mb-2 tracking-widest">卦象已成</p>
-                <h3 id="hex-result-name" class="text-3xl text-white mb-6 font-bold tracking-widest">--</h3>
-                <button onclick="unlockAnalysis()" class="w-full gold-btn py-4 rounded-full font-bold tracking-widest hover:scale-105 transform">
+                <h3 id="hex-name-display" class="text-3xl font-bold text-white mb-6 tracking-widest">--</h3>
+                <div id="ai-response" class="text-left text-sm text-gray-300 leading-relaxed max-h-64 overflow-y-auto mb-6 px-2">
+                    </div>
+                <button id="main-action-btn" onclick="unlockAnalysis()" class="w-full gold-button py-4 rounded-full font-bold tracking-[0.2em]">
                     解开指引
                 </button>
             </div>
@@ -118,100 +104,106 @@
     </main>
 
     <script>
-        // 核心卦名数据库 (示例，实际包含64个)
+        // 核心卦象识别
         const hexMap = {
             "111111": "乾为天", "000000": "坤为地", "010001": "水雷屯", "100010": "山水蒙",
             "111010": "水天需", "010111": "天水讼", "000010": "地水师", "010000": "水地比",
-            "111011": "风天小畜", "110111": "天泽履", "111000": "地天泰", "000111": "天地否"
-            // 其他卦名逻辑以此类推...
+            "111011": "风天小畜", "110111": "天泽履", "111000": "地天泰", "000111": "天地否",
+            "101111": "天火同人", "111101": "火天大有", "000100": "地山谦", "001000": "雷地豫"
+            // (此处可根据需要补全 64 卦)
         };
 
         const i18n = {
-            zh: { title: "请静心思考你的问题", step: "第 {n} 爻 / 第 6 步", pay: "解开指引 ($1.99)" },
-            en: { title: "Focus on your question", step: "Line {n} / 6", pay: "Reveal Guidance ($1.99)" }
+            zh: { title: "在此输入你的困惑或祈愿", step: "第 {n} 爻 / 共 6 爻", btn: "解开指引", loading: "大师正在禅思，请稍候..." },
+            en: { title: "Enter your question or wish", step: "Line {n} / 6", btn: "Reveal Guidance", loading: "Consulting the Oracle..." }
         };
 
         let lines = [];
         let currentLang = 'zh';
 
+        function changeLang(l) {
+            currentLang = l;
+            document.getElementById('ui-title').innerText = i18n[l].title;
+            updateStepText();
+        }
+
+        function updateStepText() {
+            if (lines.length < 6) {
+                document.getElementById('ui-step-hint').innerText = i18n[currentLang].step.replace('{n}', lines.length + 1);
+            }
+        }
+
         function addLine(val) {
             if (lines.length >= 6) return;
             lines.push(val);
             
-            document.getElementById('empty-hint').style.opacity = '0';
-            const container = document.getElementById('hex-container');
-            const lineWrap = document.createElement('div');
-            lineWrap.className = 'line-container animate__animated animate__fadeInUp';
+            document.getElementById('empty-hint').style.display = 'none';
+            const display = document.getElementById('hex-display');
+            const wrap = document.createElement('div');
+            wrap.className = 'line-container animate__animated animate__fadeInUp';
 
-            // 逻辑判断阴阳 (3, 1 为阳，0, 2 为阴)
             if (val === 3 || val === 1) {
-                lineWrap.innerHTML = '<div class="yang-line"></div>';
+                wrap.innerHTML = '<div class="yang-line"></div>';
             } else {
-                lineWrap.innerHTML = '<div class="yin-line"><div></div><div></div></div>';
+                wrap.innerHTML = '<div class="yin-line"><div></div><div></div></div>';
             }
-            container.appendChild(lineWrap);
+            display.appendChild(wrap);
 
-            if (lines.length < 6) {
-                document.getElementById('ui-step-hint').innerText = i18n[currentLang].step.replace('{n}', lines.length + 1);
+            if (lines.length === 6) {
+                const code = lines.map(v => (v === 3 || v === 1) ? "1" : "0").join("");
+                document.getElementById('toss-ui').classList.add('hidden');
+                document.getElementById('result-ui').classList.remove('hidden');
+                document.getElementById('hex-name-display').innerText = hexMap[code] || "感应之卦";
             } else {
-                calculateResult();
+                updateStepText();
             }
         }
 
-        function calculateResult() {
-            document.getElementById('toss-ui').classList.add('hidden');
-            document.getElementById('result-ui').classList.remove('hidden');
-            
-            // 将 [3,1,2,0..] 转化为二进制码 "1100.."
-            const code = lines.map(v => (v === 3 || v === 1) ? "1" : "0").join("");
-            const name = hexMap[code] || "大衍之卦"; // 简化版演示
-            document.getElementById('hex-result-name').innerText = name;
-        }
+        // 修改后的 AI 连接函数
+        async function unlockAnalysis() {
+            const question = document.getElementById('user-question').value;
+            const hexName = document.getElementById('hex-name-display').innerText;
+            const btn = document.getElementById('main-action-btn');
+            const responseBox = document.getElementById('ai-response');
 
-        function unlockAnalysis() {
-          async function unlockAnalysis() {
-    const question = document.getElementById('user-question').value;
-    const hexName = document.getElementById('hex-result-name').innerText;
-    const resultUI = document.getElementById('result-ui');
+            if (!question) {
+                alert(currentLang === 'zh' ? "请先输入您的问题" : "Please enter your question first");
+                return;
+            }
 
-    if (!question) {
-        alert("请先输入您想咨询的问题。");
-        return;
-    }
+            // 1. 进入加载状态
+            btn.disabled = true;
+            btn.innerText = i18n[currentLang].loading;
+            responseBox.innerHTML = `<div class="animate-pulse text-center py-4">......</div>`;
 
-    // 展示加载状态
-    resultUI.innerHTML = `<p class="animate-pulse text-white">大师正在禅思，请稍候...</p>`;
+            try {
+                // 2. 调用你在 api/analyze.js 创建的接口
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        question: question,
+                        hexName: hexName,
+                        lines: lines,
+                        lang: currentLang
+                    })
+                });
 
-    try {
-        const response = await fetch('/api/analyze', {
-            method: 'POST',
-            body: JSON.stringify({
-                question: question,
-                hexName: hexName,
-                lines: lines,
-                lang: currentLang
-            })
-        });
-
-        const data = await response.json();
-        
-        // 渲染 AI 解析结果
-        resultUI.innerHTML = `
-            <div class="text-left text-sm text-gray-200 leading-relaxed bg-black/40 p-6 rounded-xl border border-gold/20 max-h-96 overflow-y-auto">
-                ${data.text.replace(/\n/g, '<br>')}
-            </div>
-            <button onclick="location.reload()" class="mt-6 text-xs border border-gold/50 px-4 py-2 rounded-full">重新起卦</button>
-        `;
-    } catch (error) {
-        alert("连接失败，请检查 Vercel 环境变量配置。");
-    }
-}
-        }
-
-        function changeLang(l) {
-            currentLang = l;
-            document.getElementById('ui-title').innerText = i18n[l].title;
-            // 更多翻译更新...
+                const data = await response.json();
+                
+                // 3. 渲染 AI 结果
+                if (data.text) {
+                    responseBox.innerHTML = `<div class="animate__animated animate__fadeIn">` + data.text.replace(/\n/g, '<br>') + `</div>`;
+                    btn.innerText = currentLang === 'zh' ? "再起一卦" : "Toss Again";
+                    btn.onclick = () => location.reload();
+                    btn.disabled = false;
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                alert("AI 暂时无法连接，请检查 Vercel 环境变量配置。");
+                btn.disabled = false;
+                btn.innerText = i18n[currentLang].btn;
+            }
         }
     </script>
 </body>
