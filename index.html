@@ -1,13 +1,1 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I Ching App</title>
-</head>
-<body>
-    <h1>Welcome to the I Ching App</h1>
-    <p>This app allows you to explore the principles of the I Ching.</p>
-    <!-- Additional content here -->
-</body>
-</html>
+<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <link href=\"https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css\" rel=\"stylesheet\">\n    <link href=\"https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css\" rel=\"stylesheet\">\n    <title>Flux Oracle / 易问</title>\n    <style>\n        /* Additional styles can be added here */\n        body {\n            font-family: Arial, sans-serif;\n            background-color: #f3f4f6;\n            color: #333;\n        }\n    </style>\n</head>\n<body class=\"p-6\">\n    <div class=\"container mx-auto\">\n        <h1 class=\"text-4xl font-bold text-center mb-6\">Flux Oracle / 易问</h1>\n        <div id=\"app\" class=\"animate__animated animate__fadeIn\">\n            <!-- Application content will go here -->\n            <button class=\"bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600\" onclick=\"getOracleReading()\">Get Oracle Reading</button>\n            <div id=\"reading\" class=\"mt-4\"></div>\n        </div>\n    </div>\n    <script>\n        function getOracleReading() {\n            const readings = [\n                'You will encounter new challenges.',\n                'A positive change is coming your way.',\n                'Be cautious of new opportunities.',\n                'Self-reflection is necessary now.'\n            ];\n            const reading = readings[Math.floor(Math.random() * readings.length)];\n            document.getElementById(\"reading\").innerHTML = reading;\n        }\n    </script>\n</body>\n</html>\n
