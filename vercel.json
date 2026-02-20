@@ -1,1 +1,1 @@
-{ "version": 2, "routes": [ { "src": "/(.*)", "dest": "public/$1" } ] }
+{\n  "version": 2,\n  "builds": [{\n    "src": "./src/**/*.{js,jsx,ts,tsx}",\n    "use": "@vercel/static"\n  }],\n  "routes": [{\n    "src": "/(.*)",\n    "dest": "/$1"\n  }]\n}
